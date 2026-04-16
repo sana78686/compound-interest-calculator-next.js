@@ -1,0 +1,101 @@
+'use client'
+
+import Link from 'next/link'
+import { ucWords } from '@/utils/ucWords'
+import './Footer.css'
+
+const LEGAL_SLUG_ORDER = ['terms', 'privacy-policy', 'disclaimer', 'about-us', 'cookie-policy']
+
+const LEGAL_LABEL_KEY = {
+  terms: 'footerTerms',
+  'privacy-policy': 'footerPrivacy',
+  disclaimer: 'footerDisclaimer',
+  'about-us': 'footerAbout',
+  'cookie-policy': 'footerCookies',
+}
+
+type FooterPage = { id: number; title: string; slug: string; placement?: string }
+
+type FooterProps = {
+  lang: string
+  t: (key: string, params?: Record<string, string | number>) => string
+  footerPages?: FooterPage[]
+  legalVisibility?: Record<string, boolean>
+  showFaqLink?: boolean
+}
+
+export default function Footer({
+  t,
+  footerPages = [],
+  legalVisibility = {},
+  showFaqLink = false,
+}: FooterProps) {
+  const cmsFooterLinks = footerPages.filter(
+    (p) => p.placement === 'footer' || p.placement === 'both',
+  )
+
+  const legalLinksToShow = LEGAL_SLUG_ORDER.filter((slug) => legalVisibility[slug])
+  const showLegalColumn = legalLinksToShow.length > 0
+
+  return (
+    <footer className="footer footer--dark">
+      <div className="footer-inner">
+        <div className="footer-top">
+          <div className="footer-columns">
+            <div className="footer-col">
+              <h3 className="footer-col-title">{t('footerCompany')}</h3>
+              <Link href="/blog">{t('footerBlog')}</Link>
+              <Link href="/contact">{t('footerContact')}</Link>
+              <Link href="/calculator/isa">ISA calculator</Link>
+              {showFaqLink && <Link href="/#insights">FAQ</Link>}
+            </div>
+            {cmsFooterLinks.length > 0 && (
+              <div className="footer-col">
+                <h3 className="footer-col-title">{t('footerOther')}</h3>
+                {cmsFooterLinks.map((p) => (
+                  <Link key={p.id} href={`/page/${p.slug}`}>
+                    {ucWords(p.title)}
+                  </Link>
+                ))}
+              </div>
+            )}
+            {showLegalColumn && (
+              <div className="footer-col">
+                <h3 className="footer-col-title">{t('footerLegal')}</h3>
+                {legalLinksToShow.map((slug) => (
+                  <Link key={slug} href={`/legal/${slug}`}>
+                    {t(LEGAL_LABEL_KEY[slug as keyof typeof LEGAL_LABEL_KEY])}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="footer-divider" />
+
+        <div className="footer-bottom">
+          <div className="footer-social-copy">
+            <nav className="footer-social" aria-label="Social links">
+              <a href="#twitter" aria-label="X (Twitter)">
+                <span className="footer-social-icon">𝕏</span>
+              </a>
+              <a href="#facebook" aria-label="Facebook">
+                <span className="footer-social-icon">f</span>
+              </a>
+              <a href="#linkedin" aria-label="LinkedIn">
+                <span className="footer-social-icon">in</span>
+              </a>
+            </nav>
+            <p className="footer-copy">
+              <span>{t('footerCopyrightPrefix')}</span>
+              <a href="https://apimstec.com" target="_blank" rel="noopener noreferrer">
+                {t('footerPoweredBy')}
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  )
+}

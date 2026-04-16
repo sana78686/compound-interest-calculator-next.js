@@ -1,0 +1,337 @@
+/* Compound Interest Calculator — UK finance UI (blue / green / white) */
+
+.cic-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem clamp(1rem, 3vw, 2rem) 3rem;
+}
+
+.cic-hero {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.cic-hero__title {
+  font-size: clamp(1.75rem, 4vw, 2.25rem);
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.75rem;
+}
+
+.cic-hero__isa {
+  max-width: 42rem;
+  margin: 0 auto 0.75rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: #334155;
+}
+
+.cic-hero__sub {
+  color: #64748b;
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+}
+
+.cic-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.cic-badge {
+  display: inline-block;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.cic-switch {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.cic-switch__link {
+  color: #1d4ed8;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cic-switch__link:hover {
+  text-decoration: underline;
+}
+
+.cic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .cic-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cic-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
+  padding: 1.25rem 1.5rem;
+}
+
+.cic-card--wide {
+  margin-bottom: 1.5rem;
+}
+
+.cic-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 1rem;
+}
+
+.cic-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.cic-field__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+.cic-field__row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.cic-field__row input,
+.cic-field input,
+.cic-field select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.cic-prefix,
+.cic-suffix {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.cic-info {
+  cursor: help;
+  color: #94a3b8;
+}
+
+.cic-field--split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.cic-advanced-toggle {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+}
+
+.cic-advanced {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem 0 0;
+}
+
+.cic-check {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.cic-btn-calc {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.35);
+}
+
+.cic-btn-calc:hover {
+  filter: brightness(1.05);
+}
+
+.cic-result-main {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.cic-result-label {
+  font-size: 0.85rem;
+  color: #64748b;
+  margin: 0 0 1rem;
+}
+
+.cic-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+}
+
+.cic-breakdown__row {
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.cic-breakdown__row--interest {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.cic-breakdown__row--principal {
+  background: #f1f5f9;
+  color: #334155;
+}
+
+.cic-breakdown__row--contrib {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.cic-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.cic-stats li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.cic-stats strong {
+  color: #0f172a;
+}
+
+.cic-section-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.cic-toggles {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.cic-toggles button {
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  font-size: 0.85rem;
+  cursor: pointer;
+  color: #475569;
+}
+
+.cic-toggles button.is-active {
+  background: #1d4ed8;
+  color: #fff;
+  border-color: #1d4ed8;
+}
+
+.cic-chart-wrap {
+  width: 100%;
+  min-height: 320px;
+}
+
+.cic-table-wrap {
+  overflow-x: auto;
+}
+
+.cic-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.cic-table th,
+.cic-table td {
+  padding: 0.5rem 0.65rem;
+  text-align: right;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.cic-table th:first-child,
+.cic-table td:first-child {
+  text-align: left;
+}
+
+.cic-table thead {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #334155;
+}
+
+.cic-insights ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: #334155;
+  line-height: 1.6;
+}
+
+.cic-insights li {
+  margin-bottom: 0.5rem;
+}
+
+.cic-header--calc {
+  background: linear-gradient(180deg, #1e3a5f 0%, #0f172a 100%);
+}
+
+.cic-header--calc .logo-wordmark-text,
+.cic-header--calc .header-primary-links a {
+  color: #f8fafc;
+}
+
+.cic-header--calc .header-primary-links a:hover {
+  color: #93c5fd;
+}
