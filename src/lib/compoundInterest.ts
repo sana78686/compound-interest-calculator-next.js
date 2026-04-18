@@ -3,6 +3,9 @@
  * See docs/COMPOUND_INTEREST_CALCULATOR.md for formulas and assumptions.
  */
 
+import { formatCurrencyAmount } from '@/lib/currency'
+import type { CurrencyCode } from '@/lib/currency'
+
 export type CompoundingFrequency = 'daily' | 'monthly' | 'yearly'
 
 export interface SimulationParams {
@@ -214,9 +217,14 @@ export function simulateCompoundInterest(raw: SimulationParams): SimulationResul
   }
 }
 
-export function buildInsights(result: SimulationResult, params: SimulationParams): string[] {
+export function buildInsights(
+  result: SimulationResult,
+  params: SimulationParams,
+  opts?: { currency?: CurrencyCode },
+): string[] {
   const out: string[] = []
   const { monthlyPoints, totalInterest } = result
+  const cur: CurrencyCode = opts?.currency ?? 'GBP'
 
   if (params.monthlyContribution > 0 && monthlyPoints.length > 12) {
     for (let y = 1; y < 50; y++) {
@@ -240,7 +248,7 @@ export function buildInsights(result: SimulationResult, params: SimulationParams
   if (params.monthlyContribution > 0 && params.years > 0) {
     const extra = params.monthlyContribution * 12 * params.years
     out.push(
-      `Regular deposits add about £${extra.toLocaleString('en-GB', { maximumFractionDigits: 0 })} in contributions over ${params.years} year(s) (excluding interest).`,
+      `Regular deposits add about ${formatCurrencyAmount(extra, cur)} in contributions over ${params.years} year(s) (excluding interest).`,
     )
   }
 
@@ -251,7 +259,7 @@ export function buildInsights(result: SimulationResult, params: SimulationParams
   }
 
   if (out.length === 0) {
-    out.push(`Estimated interest over the period: about £${totalInterest.toLocaleString('en-GB', { maximumFractionDigits: 2 })}.`)
+    out.push(`Estimated interest over the period: about ${formatCurrencyAmount(totalInterest, cur)}.`)
   }
 
   return out.slice(0, 5)

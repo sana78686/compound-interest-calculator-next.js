@@ -46,8 +46,8 @@ export default function Footer({
               <h3 className="footer-col-title">{t('footerCompany')}</h3>
               <Link href="/blog">{t('footerBlog')}</Link>
               <Link href="/contact">{t('footerContact')}</Link>
-              <Link href="/calculator/isa">ISA calculator</Link>
-              {showFaqLink && <Link href="/#insights">FAQ</Link>}
+              <Link href="/isa">ISA calculator</Link>
+              {showFaqLink && <Link href="/blog">FAQ</Link>}
             </div>
             {cmsFooterLinks.length > 0 && (
               <div className="footer-col">
@@ -75,25 +75,12 @@ export default function Footer({
         <div className="footer-divider" />
 
         <div className="footer-bottom">
-          <div className="footer-social-copy">
-            <nav className="footer-social" aria-label="Social links">
-              <a href="#twitter" aria-label="X (Twitter)">
-                <span className="footer-social-icon">𝕏</span>
-              </a>
-              <a href="#facebook" aria-label="Facebook">
-                <span className="footer-social-icon">f</span>
-              </a>
-              <a href="#linkedin" aria-label="LinkedIn">
-                <span className="footer-social-icon">in</span>
-              </a>
-            </nav>
-            <p className="footer-copy">
-              <span>{t('footerCopyrightPrefix')}</span>
-              <a href="https://apimstec.com" target="_blank" rel="noopener noreferrer">
-                {t('footerPoweredBy')}
-              </a>
-            </p>
-          </div>
+          <p className="footer-copy">
+            <span>{t('footerCopyrightPrefix')}</span>
+            <a href="https://apimstec.com" target="_blank" rel="noopener noreferrer">
+              {t('footerPoweredBy')}
+            </a>
+          </p>
         </div>
       </div>
     </footer>

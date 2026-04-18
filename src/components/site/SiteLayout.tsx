@@ -2,6 +2,7 @@
 
 import { useEffect, lazy, Suspense, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/i18n/useTranslation'
 import { getPages, getLegalNav, getFaq } from '@/lib/cms-client'
 import BrandLogo from './BrandLogo'
@@ -27,7 +28,11 @@ const Footer = lazy(() => import('./Footer'))
 
 const LOCALE = 'en' as const
 
+const CALC_FLOW_PATHS = new Set(['/', '/isa', '/results', '/isa/results'])
+
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname() ?? '/'
+  const calcFlow = CALC_FLOW_PATHS.has(pathname)
   const t = useTranslation(LOCALE)
   const [footerPages, setFooterPages] = useState<{ id: number; title: string; slug: string; placement?: string }[]>(
     [],
@@ -68,13 +73,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
   }, [])
 
   return (
-    <div className="home-page">
-      <header className="header cic-header--calc">
+    <div className={calcFlow ? 'home-page home-page--calc-flow' : 'home-page'}>
+      <header className={`header cic-header--calc ${calcFlow ? 'cic-header--calc-v2' : ''}`}>
         <div className="header-inner header-inner--minimal">
           <BrandLogo href="/" ariaLabel={t('nav.home')} text={SITE_BRAND_MARK} />
           <nav className="header-primary-links" aria-label="Site">
             <Link href="/">Calculator</Link>
-            <Link href="/calculator/isa">ISA calculator</Link>
+            <Link href="/isa">ISA calculator</Link>
             <Link href="/blog">Guides</Link>
             <Link href="/contact">About</Link>
           </nav>

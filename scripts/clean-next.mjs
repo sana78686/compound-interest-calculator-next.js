@@ -1,6 +1,9 @@
 /**
- * Remove `.next` before build — fixes Windows/Git Bash ENOENT / "Cannot find module for page"
- * when the cache is stale or partially written.
+ * Remove `.next` before dev/build — fixes stale cache on Windows.
+ *
+ * Important: stop every `next dev` for this project first (Ctrl+C in all terminals).
+ * Deleting `.next` while the dev server is still running causes missing chunks
+ * (`Cannot find module './NNN.js'`), missing `routes-manifest.json`, and GET / → 500.
  */
 import fs from 'fs'
 import path from 'path'

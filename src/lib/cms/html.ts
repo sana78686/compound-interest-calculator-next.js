@@ -23,10 +23,38 @@ export function absolutizeCmsHtmlServer(html: string, siteOrigin: string): strin
   )
 }
 
+/**
+ * Build an absolute origin (with scheme). Values like `localhost:3004` without `http://`
+ * would break `new URL()` in metadata and cause 500s.
+ */
+function normalizeAbsoluteOrigin(raw: string): string {
+  const s = raw.trim().replace(/\/+$/, '')
+  if (!s) return 'http://localhost:3000'
+  if (/^https?:\/\//i.test(s)) return s
+  if (
+    s === 'localhost' ||
+    s.startsWith('localhost:') ||
+    s === '127.0.0.1' ||
+    s.startsWith('127.0.0.1:')
+  ) {
+    return `http://${s}`
+  }
+  return `https://${s}`
+}
+
 export function siteOriginFromEnv(): string {
-  const explicit = String(process.env.NEXT_PUBLIC_SITE_ORIGIN || '').trim().replace(/\/+$/, '')
-  if (explicit) return explicit
+  const explicit = String(process.env.NEXT_PUBLIC_SITE_ORIGIN || '').trim()
+  if (explicit) return normalizeAbsoluteOrigin(explicit)
   const d = String(process.env.NEXT_PUBLIC_SITE_DOMAIN || 'compound-interest.example').trim()
-  if (d === 'localhost' || d === '127.0.0.1') return `http://${d}`
-  return `https://${d}`
+  return normalizeAbsoluteOrigin(d)
+}
+
+/** Safe for Next.js `metadata.metadataBase` (must be a valid absolute URL). */
+export function metadataBaseFromEnv(): URL {
+  try {
+    const siteUrl = siteOriginFromEnv()
+    return new URL(siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`)
+  } catch {
+    return new URL('http://localhost:3000/')
+  }
 }

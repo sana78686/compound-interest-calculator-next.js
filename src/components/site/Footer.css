@@ -1,9 +1,9 @@
 /* Dark multi-column footer – use element+class so we override HomePage.css on CMS pages */
 footer.footer.footer--dark {
-  background: #2d2d2d !important;
+  background: #000000 !important;
   color: #fff;
   margin-top: auto;
-  border-top: none;
+  border-top: 1px solid #262626;
   padding: 2.5rem 1.5rem 1.5rem;
 }
 
@@ -61,12 +61,12 @@ footer.footer.footer--dark .footer-divider {
   margin: 1.5rem 0 1.25rem;
 }
 
-/* Bottom bar: language (left) + social (center) + copyright (right) */
+/* Bottom bar: copyright (social icons removed) */
 footer.footer.footer--dark .footer-bottom {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 1rem;
 }
 
@@ -195,7 +195,7 @@ footer.footer.footer--dark .footer-copy {
   border: none;
   font-size: 0.8rem;
   color: rgba(255, 255, 255, 0.7);
-  text-align: right;
+  text-align: center;
 }
 
 footer.footer.footer--dark .footer-copy a {

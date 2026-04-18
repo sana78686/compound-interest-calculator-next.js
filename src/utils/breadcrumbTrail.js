@@ -32,8 +32,14 @@ export function buildCompressPdfBreadcrumbItems(pathname, t) {
   const home = { label: t('nav.home'), to: `${lp}/` }
   const join = (path) => `${lp}${path === '/' ? '' : path}`
 
-  if (rest === '/calculator/isa') {
+  if (rest === '/isa') {
     return [home, { label: t('nav.isaCalculator') }]
+  }
+  if (rest === '/results') {
+    return [home, { label: 'Results' }]
+  }
+  if (rest === '/isa/results') {
+    return [home, { label: t('nav.isaCalculator'), to: join('/isa') }, { label: 'Results' }]
   }
   if (rest === '/blog') {
     return [home, { label: t('blog.listTitle') }]

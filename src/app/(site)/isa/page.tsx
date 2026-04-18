@@ -3,18 +3,18 @@ import type { Metadata } from 'next'
 import CompoundCalculatorInput from '@/components/calculator/CompoundCalculatorInput'
 import { socialMetadata } from '@/lib/seoMetadata'
 
-const title = 'Compound Interest Calculator'
+const title = 'Compound Interest Calculator (ISA)'
 const description =
-  'Free UK compound interest calculator with daily compounding, monthly contributions, charts, and optional Stocks & Shares ISA allowance ( £20,000 per tax year ).'
+  'Compound interest calculator with UK ISA subscription limits: £20,000 per tax year (6 April – 5 April). Tax-free growth inside a Stocks & Shares ISA.'
 
 export const metadata: Metadata = {
   title,
   description,
-  alternates: { canonical: '/' },
+  alternates: { canonical: '/isa' },
   ...socialMetadata({
     title,
     description,
-    path: '/',
+    path: '/isa',
     ogLocale: 'en_GB',
   }),
 }
@@ -27,10 +27,10 @@ function InputFallback() {
   )
 }
 
-export default function HomePage() {
+export default function IsaCalculatorPage() {
   return (
     <Suspense fallback={<InputFallback />}>
-      <CompoundCalculatorInput defaultIsaMode={false} />
+      <CompoundCalculatorInput defaultIsaMode />
     </Suspense>
   )
 }

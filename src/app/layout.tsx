@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { CmsClientBootstrap } from '@/components/CmsClientBootstrap'
-import { siteOriginFromEnv } from '@/lib/cms/html'
+import { metadataBaseFromEnv } from '@/lib/cms/html'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -14,15 +14,16 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const siteUrl = siteOriginFromEnv()
-const metadataBase = new URL(siteUrl.endsWith('/') ? siteUrl : `${siteUrl}/`)
-
 export const metadata: Metadata = {
-  metadataBase,
+  metadataBase: metadataBaseFromEnv(),
   title: { default: 'Compound Interest Calculator', template: '%s | Compound Interest Calculator' },
   description:
     'UK compound interest calculator with charts, monthly contributions, daily compounding, and optional ISA subscription limits.',
   applicationName: 'Compound Interest Calculator',
+  icons: {
+    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+  },
   openGraph: {
     type: 'website',
     siteName: 'Compound Interest Calculator',
@@ -48,7 +49,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      {/* suppressHydrationWarning: extensions (e.g. ColorZilla) inject attrs like cz-shortcut-listen on <body> */}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
+      >
         <CmsClientBootstrap />
         {children}
       </body>

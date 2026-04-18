@@ -1,4 +1,4 @@
 /**
  * Brand wordmark — English only.
  */
-export const SITE_BRAND_MARK = 'Compound Calc'
+export const SITE_BRAND_MARK = 'Compound Interest Calculator'
