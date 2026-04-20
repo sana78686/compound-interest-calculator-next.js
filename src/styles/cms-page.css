@@ -14,7 +14,7 @@
 }
 
 .cms-page-error {
-  color: var(--accent-red);
+  color: var(--site-danger, #b91c1c);
 }
 
 .cms-page-header {
@@ -90,13 +90,14 @@
 }
 
 .cms-page-content a {
-  color: var(--accent-red);
+  color: var(--site-primary, #2563eb);
   text-decoration: none;
+  font-weight: 500;
 }
 
 .cms-page-content a:hover {
   text-decoration: underline;
-  color: var(--accent-red-hover, #c93535);
+  color: var(--site-primary-dark, #1d4ed8);
 }
 
 /* Prevent layout shift: images in CMS content */
@@ -127,15 +128,15 @@
 }
 
 .cms-page-back {
-  color: var(--accent-red);
+  color: var(--site-primary, #2563eb);
   text-decoration: none;
   font-size: 0.9375rem;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .cms-page-back:hover {
   text-decoration: underline;
-  color: var(--accent-red-hover, #c93535);
+  color: var(--site-primary-dark, #1d4ed8);
 }
 
 .cms-page-footer-sep {
@@ -326,13 +327,14 @@
 }
 
 .cms-blog-content a {
-  color: var(--accent-red);
+  color: var(--site-primary, #2563eb);
   text-decoration: none;
+  font-weight: 500;
 }
 
 .cms-blog-content a:hover {
   text-decoration: underline;
-  color: var(--accent-red-hover, #c93535);
+  color: var(--site-primary-dark, #1d4ed8);
 }
 
 .cms-blog-content hr {
@@ -432,5 +434,5 @@
   padding: 1rem 1.25rem;
   margin: 1.25rem 0;
   background: #fafafa;
-  border-left: 4px solid var(--accent-red, #e03d3d);
+  border-left: 4px solid var(--site-primary, #2563eb);
 }

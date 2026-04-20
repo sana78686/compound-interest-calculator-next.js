@@ -21,14 +21,12 @@ type FooterProps = {
   t: (key: string, params?: Record<string, string | number>) => string
   footerPages?: FooterPage[]
   legalVisibility?: Record<string, boolean>
-  showFaqLink?: boolean
 }
 
 export default function Footer({
   t,
   footerPages = [],
   legalVisibility = {},
-  showFaqLink = false,
 }: FooterProps) {
   const cmsFooterLinks = footerPages.filter(
     (p) => p.placement === 'footer' || p.placement === 'both',
@@ -47,7 +45,6 @@ export default function Footer({
               <Link href="/blog">{t('footerBlog')}</Link>
               <Link href="/contact">{t('footerContact')}</Link>
               <Link href="/isa">ISA calculator</Link>
-              {showFaqLink && <Link href="/blog">FAQ</Link>}
             </div>
             {cmsFooterLinks.length > 0 && (
               <div className="footer-col">
@@ -75,12 +72,7 @@ export default function Footer({
         <div className="footer-divider" />
 
         <div className="footer-bottom">
-          <p className="footer-copy">
-            <span>{t('footerCopyrightPrefix')}</span>
-            <a href="https://apimstec.com" target="_blank" rel="noopener noreferrer">
-              {t('footerPoweredBy')}
-            </a>
-          </p>
+          <p className="footer-copy">{t('footerCopyrightLine')}</p>
         </div>
       </div>
     </footer>

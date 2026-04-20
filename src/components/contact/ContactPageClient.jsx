@@ -56,10 +56,9 @@ export default function ContactPageClient() {
 
   function contactDetailsVisible(s) {
     if (!s || typeof s !== 'object') return false
-    const e = String(s.contact_email ?? '').trim()
     const p = String(s.contact_phone ?? '').trim()
     const a = String(s.contact_address ?? '').trim()
-    return Boolean(e || p || a)
+    return Boolean(p || a)
   }
 
   function handleChange(e) {
@@ -134,17 +133,6 @@ export default function ContactPageClient() {
           <div className="contact-page-details" aria-label={t('contact.detailsHeading')}>
             {contactDetailsVisible(settings) ? (
               <ul className="contact-details-list">
-                {String(settings.contact_email ?? '').trim() !== '' && (
-                  <li className="contact-details-item">
-                    <span className="contact-details-label">{t('contact.email')}</span>
-                    <a
-                      className="contact-details-value contact-details-link"
-                      href={`mailto:${String(settings.contact_email).trim()}`}
-                    >
-                      {String(settings.contact_email).trim()}
-                    </a>
-                  </li>
-                )}
                 {String(settings.contact_phone ?? '').trim() !== '' && (
                   <li className="contact-details-item">
                     <span className="contact-details-label">{t('contact.phone')}</span>

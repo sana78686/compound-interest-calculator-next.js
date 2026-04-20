@@ -42,7 +42,13 @@ function formatDate(iso: string) {
 }
 
 export async function BlogListView({ locale }: { locale: Locale }) {
-  const res = await getBlogs(locale)
+  let res: unknown = null
+  try {
+    res = await getBlogs(locale)
+  } catch {
+    /* CMS offline or misconfigured — show empty list instead of crashing the route */
+    res = null
+  }
   const blogs = normalizeBlogs(res)
   const jsonLd =
     res && typeof res === 'object' && 'json_ld' in res ? (res as { json_ld?: unknown }).json_ld : null

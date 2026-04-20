@@ -1,4 +1,4 @@
-/* Contact page – two-column layout, form in card (iLovePDF-style) */
+/* Contact page – two-column layout, aligned with compound calculator card styling */
 .contact-page.wrap {
   max-width: var(--content-max-width, 1200px);
   margin: 0 auto;
@@ -15,7 +15,7 @@
 }
 
 .contact-page-error {
-  color: var(--accent-red, #e03d3d);
+  color: var(--site-danger, #b91c1c);
 }
 
 .contact-page-grid {
@@ -34,7 +34,8 @@
   font-size: 2rem;
   font-weight: 700;
   margin: 0 0 1rem;
-  color: var(--text-primary, #1f2937);
+  color: #0f172a;
+  letter-spacing: -0.02em;
 }
 
 .contact-page-intro-text {
@@ -82,7 +83,7 @@
 }
 
 .contact-details-link {
-  color: var(--accent-red, #e03d3d);
+  color: var(--site-primary, #2563eb);
   text-decoration: none;
   word-break: break-word;
 }
@@ -147,11 +148,11 @@
 }
 
 .contact-page-form-wrap {
-  background: var(--bg-header, #fff);
+  background: #fff;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  padding: 2rem;
-  border: 1px solid var(--border-light, #e5e7eb);
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  padding: 1.5rem 1.75rem;
+  border: 1px solid #e2e8f0;
 }
 
 /* Form */
@@ -165,37 +166,38 @@
 
 .contact-form-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: var(--text-primary, #1f2937);
+  color: #475569;
   margin-bottom: 0.35rem;
 }
 
 .contact-form-required {
-  color: var(--accent-red, #e03d3d);
+  color: var(--site-danger, #b91c1c);
 }
 
 .contact-form-input,
 .contact-form-select,
 .contact-form-textarea {
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  padding: 0.5rem 0.65rem;
   font-size: 1rem;
   line-height: 1.5;
-  color: var(--text-primary);
+  color: var(--text-primary, #0f172a);
   background: #fff;
-  border: 1px solid var(--border-light, #d1d5db);
-  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
   box-sizing: border-box;
   font-family: inherit;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .contact-form-input:focus,
 .contact-form-select:focus,
 .contact-form-textarea:focus {
   outline: none;
-  border-color: var(--accent-red, #e03d3d);
-  box-shadow: 0 0 0 2px rgba(224, 61, 61, 0.15);
+  border-color: var(--site-primary, #2563eb);
+  box-shadow: 0 0 0 2px var(--site-primary-soft, rgba(37, 99, 235, 0.15));
 }
 
 .contact-form-input::placeholder,
@@ -232,12 +234,13 @@
   width: 1.1rem;
   height: 1.1rem;
   flex-shrink: 0;
-  accent-color: var(--accent-red, #e03d3d);
+  accent-color: var(--site-primary, #2563eb);
 }
 
 .contact-form-legal-link {
-  color: var(--accent-red, #e03d3d);
+  color: var(--site-primary, #2563eb);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .contact-form-legal-link:hover {
@@ -246,27 +249,30 @@
 
 .contact-form-error {
   margin: 0 0 1rem;
-  padding: 0.5rem 0;
+  padding: 0.5rem 0.65rem;
   font-size: 0.9375rem;
-  color: var(--accent-red, #e03d3d);
+  color: var(--site-danger, #b91c1c);
+  background: var(--site-danger-soft, rgba(185, 28, 28, 0.08));
+  border-radius: 8px;
 }
 
 .contact-form-submit {
   width: 100%;
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 0.75rem 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #fff;
-  background: var(--accent-red, #e03d3d);
+  background: linear-gradient(180deg, var(--site-primary, #2563eb) 0%, var(--site-primary-dark, #1d4ed8) 100%);
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   margin-top: 0.5rem;
-  transition: background 0.2s, opacity 0.2s;
+  box-shadow: 0 2px 8px var(--site-primary-shadow, rgba(37, 99, 235, 0.35));
+  transition: filter 0.2s, opacity 0.2s;
 }
 
 .contact-form-submit:hover:not(:disabled) {
-  background: var(--accent-red-hover, #c93535);
+  filter: brightness(1.05);
 }
 
 .contact-form-submit:disabled {
@@ -289,16 +295,17 @@
 
 .contact-form-success-again {
   font-size: 0.9375rem;
-  color: var(--accent-red);
+  color: var(--site-primary, #2563eb);
   background: none;
   border: none;
   cursor: pointer;
   text-decoration: underline;
   padding: 0;
+  font-weight: 600;
 }
 
 .contact-form-success-again:hover {
-  color: var(--accent-red-hover, #c93535);
+  color: var(--site-primary-dark, #1d4ed8);
 }
 
 .contact-page-footer {
@@ -309,13 +316,14 @@
 
 .contact-page-back {
   font-size: 0.9375rem;
-  color: var(--accent-red, #e03d3d);
+  color: var(--site-primary, #2563eb);
   text-decoration: none;
+  font-weight: 600;
 }
 
 .contact-page-back:hover {
   text-decoration: underline;
-  color: var(--accent-red-hover, #c93535);
+  color: var(--site-primary-dark, #1d4ed8);
 }
 
 /* Responsive: stack on small screens */

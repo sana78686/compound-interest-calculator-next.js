@@ -4,25 +4,12 @@ import { useEffect, lazy, Suspense, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslation } from '@/i18n/useTranslation'
-import { getPages, getLegalNav, getFaq } from '@/lib/cms-client'
+import { getPages, getLegalNav } from '@/lib/cms-client'
 import BrandLogo from './BrandLogo'
 import Breadcrumbs from './Breadcrumbs'
 import { SITE_BRAND_MARK } from '@/constants/brand'
 import { ucWords } from '@/utils/ucWords'
 import '@/components/calculator/CompoundCalculator.css'
-
-function faqListHasContent(res: { faq?: { question?: string; answer?: string }[] }) {
-  const list = res?.faq
-  if (!Array.isArray(list) || list.length === 0) return false
-  return list.some((item) => {
-    const strip = (s: string | undefined) =>
-      String(s ?? '')
-        .replace(/<[^>]+>/g, ' ')
-        .replace(/\s+/g, ' ')
-        .trim()
-    return strip(item.question).length > 0 || strip(item.answer).length > 0
-  })
-}
 
 const Footer = lazy(() => import('./Footer'))
 
@@ -38,7 +25,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     [],
   )
   const [legalVisibility, setLegalVisibility] = useState<Record<string, boolean>>({})
-  const [showFaqLink, setShowFaqLink] = useState(false)
 
   const headerCmsPages = useMemo(
     () => footerPages.filter((p) => p.placement === 'header' || p.placement === 'both'),
@@ -50,8 +36,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
     Promise.all([
       getPages(LOCALE).catch(() => ({ pages: [] })),
       getLegalNav(LOCALE).catch(() => ({ legal: {} })),
-      getFaq(LOCALE).catch(() => ({ faq: [] })),
-    ]).then(([pagesRes, legalNavRes, faqRes]) => {
+    ]).then(([pagesRes, legalNavRes]) => {
       if (cancelled) return
       setFooterPages(Array.isArray(pagesRes?.pages) ? pagesRes.pages : [])
       const legal = legalNavRes?.legal
@@ -60,7 +45,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           ? (legal as Record<string, boolean>)
           : {},
       )
-      setShowFaqLink(faqListHasContent(faqRes))
     })
     return () => {
       cancelled = true
@@ -110,7 +94,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           t={t}
           footerPages={footerPages}
           legalVisibility={legalVisibility}
-          showFaqLink={showFaqLink}
         />
       </Suspense>
     </div>

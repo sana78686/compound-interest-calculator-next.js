@@ -24,7 +24,8 @@ function slugLabel(slug) {
  * @param {(key: string) => string} t
  * @returns {{ label: string, to?: string }[] | null}
  */
-export function buildCompressPdfBreadcrumbItems(pathname, t) {
+/** Breadcrumb items for the compound-interest site (blog, contact, results, legal, etc.). */
+export function buildSiteBreadcrumbItems(pathname, t) {
   const { lang, rest } = stripLocalePrefix(pathname)
   const lp = langPrefix(lang)
   if (rest === '/') return null

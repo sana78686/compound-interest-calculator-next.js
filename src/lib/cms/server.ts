@@ -55,7 +55,13 @@ async function fetchPublicJsonUncached(
   for (let i = 0; i < attempts.length; i += 1) {
     const { root, headers: h } = attempts[i]
     const url = `${CMS_API_BASE}${root}${rel}`
-    const res = await fetch(url, { headers: h, next: { revalidate: 60 } })
+    let res: Response
+    try {
+      res = await fetch(url, { headers: h, next: { revalidate: 60 } })
+    } catch {
+      /* Network error (CMS down, wrong URL, TLS, DNS) — try next attempt pattern */
+      continue
+    }
     if (res.ok) return res.json()
     const retry =
       useDomainInApiPath &&
@@ -66,7 +72,9 @@ async function fetchPublicJsonUncached(
     const data = await res.json().catch(() => ({}))
     throw new Error((data as { message?: string }).message || `HTTP ${res.status}`)
   }
-  throw new Error('Public API request failed')
+  throw new Error(
+    `Public API unreachable (${CMS_API_BASE}). Check NEXT_PUBLIC_CMS_API_URL and that the CMS is running.`,
+  )
 }
 
 export async function getHomePageContent(locale: string, publicPath: string) {
