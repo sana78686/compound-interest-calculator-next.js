@@ -12,7 +12,9 @@ import {
   type NumericField,
 } from '@/lib/calculatorParams'
 import type { CurrencyCode } from '@/lib/currency'
-import { CURRENCY_OPTIONS, currencySymbol } from '@/lib/currency'
+import { CURRENCY_OPTIONS } from '@/lib/currency'
+import type { InterestRatePeriod } from '@/lib/compoundModes'
+import { COMPOUNDING_OPTIONS, INTEREST_RATE_PERIOD_OPTIONS } from '@/lib/compoundModes'
 import HelpTip from '@/components/calculator/HelpTip'
 import './CompoundCalculator.css'
 
@@ -41,9 +43,10 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
   const [currency, setCurrency] = useState<CurrencyCode | ''>('')
   const [principal, setPrincipal] = useState<NumericField>('')
   const [annualRate, setAnnualRate] = useState<NumericField>('')
+  const [ratePeriod, setRatePeriod] = useState<InterestRatePeriod>('annual')
   const [years, setYears] = useState<NumericField>('')
   const [extraMonths, setExtraMonths] = useState<NumericField>('')
-  const [compounding, setCompounding] = useState<CompoundingFrequency>('daily')
+  const [compounding, setCompounding] = useState<CompoundingFrequency>('daily365')
   const [monthlyContribution, setMonthlyContribution] = useState<NumericField>('')
   const [withdrawalsEnabled, setWithdrawalsEnabled] = useState(false)
   const [monthlyWithdrawal, setMonthlyWithdrawal] = useState<NumericField>('')
@@ -61,6 +64,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
     setCurrency(d.currency)
     setPrincipal(d.principal)
     setAnnualRate(d.annualRate)
+    setRatePeriod(d.ratePeriod)
     setYears(d.years)
     setExtraMonths(d.extraMonths)
     setCompounding(d.compounding)
@@ -70,11 +74,16 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
     setExcludeWeekends(d.excludeWeekends)
   }, [searchParams])
 
+  useEffect(() => {
+    if (compounding !== 'daily365' && excludeWeekends) setExcludeWeekends(false)
+  }, [compounding, excludeWeekends])
+
   const formState: CalculatorFormState = useMemo(
     () => ({
       currency,
       principal,
       annualRate,
+      ratePeriod,
       years,
       extraMonths,
       compounding,
@@ -87,6 +96,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
       currency,
       principal,
       annualRate,
+      ratePeriod,
       years,
       extraMonths,
       compounding,
@@ -96,8 +106,6 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
       excludeWeekends,
     ],
   )
-
-  const sym = currency ? currencySymbol(currency) : ''
 
   function onIsaToggle(next: boolean) {
     setIsaMode(next)
@@ -113,7 +121,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
     e.preventDefault()
     setFormError('')
     if (!canRunSimulation(formState)) {
-      setFormError('Select a currency, then enter initial investment and annual interest rate.')
+      setFormError('Choose a currency, enter initial investment and interest rate.')
       return
     }
     const q = encodeCalculatorParams(formState)
@@ -134,11 +142,15 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
         <p className="cic-hero__sub">
           Enter your numbers below, then open your full results on a separate page (charts and breakdown).
         </p>
+        <div className="cic-badges">
+          <span className="cic-badge">★ Trusted by millions</span>
+          <span className="cic-badge cic-badge--warm">★ Accurate &amp; fast</span>
+        </div>
       </header>
 
       <section className="cic-card cic-card--inputs cic-card--single">
         <div className="cic-card__head">
-          <h2 className="cic-card__title cic-card__title--with-isa">Investment details</h2>
+          <h2 className="cic-card__title cic-card__title--with-isa cic-card__title--details">Investment Details</h2>
           <div className="cic-isa-title-toggle">
             <span className="cic-isa-title-toggle__label">
               ISA
@@ -157,178 +169,257 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
             </button>
           </div>
         </div>
-        <form onSubmit={onCalculate} className="cic-form" noValidate>
-          <label className="cic-field">
-            <span className="cic-field__label">
-              Currency
-              <HelpTip text="All amounts below are in this currency. The calculator uses the same compound formula for every currency." />
-            </span>
-            <select
-              className="cic-currency-select"
-              value={currency}
-              onChange={(e) => setCurrency((e.target.value || '') as CurrencyCode | '')}
-              aria-label="Currency"
-            >
-              <option value="">Select currency</option>
-              {CURRENCY_OPTIONS.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.symbol} {c.label} ({c.code})
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="cic-field">
-            <span className="cic-field__label">
-              Initial investment
-              <HelpTip text="The lump sum you put in at the start, in your selected currency." />
-            </span>
-            <div className="cic-field__row">
-              {sym ? <span className="cic-prefix">{sym}</span> : <span className="cic-prefix cic-prefix--muted">—</span>}
-              <input
-                type="text"
-                inputMode="decimal"
-                autoComplete="off"
-                placeholder="0"
-                value={principal === '' ? '' : String(principal)}
-                onChange={(e) => applyNumericField(setPrincipal, e.target.value)}
-              />
-            </div>
-          </label>
-          <label className="cic-field">
-            <span className="cic-field__label">
-              Annual interest rate
-              <HelpTip text="The yearly return you expect, as a percent." />
-            </span>
-            <div className="cic-field__row">
-              <input
-                type="text"
-                inputMode="decimal"
-                autoComplete="off"
-                placeholder="0"
-                value={annualRate === '' ? '' : String(annualRate)}
-                onChange={(e) => applyNumericField(setAnnualRate, e.target.value)}
-              />
-              <span className="cic-suffix">%</span>
-            </div>
-          </label>
-          <div className="cic-field cic-field--split">
-            <label>
-              <span className="cic-field__label">
-                Years
-                <HelpTip text="Full years you plan to leave the money invested." />
+        <hr className="cic-card__hr" aria-hidden />
+        <form onSubmit={onCalculate} className="cic-form cic-form--mock" noValidate>
+          <div className="cic-mock-primary">
+            <div className="cic-mock-row">
+              <span className="cic-mock-row__label" id="cic-lbl-mock-p">
+                Initial Investment
               </span>
-              <input
-                type="text"
-                inputMode="numeric"
-                autoComplete="off"
-                placeholder="0"
-                value={years === '' ? '' : String(years)}
-                onChange={(e) => applyNumericField(setYears, e.target.value, 'int')}
-              />
-            </label>
-            <label>
-              <span className="cic-field__label">
-                Extra months
-                <HelpTip text="Add 0–11 months on top of the years (for example 5 years and 6 months)." />
-              </span>
-              <input
-                type="text"
-                inputMode="numeric"
-                autoComplete="off"
-                placeholder="0"
-                value={extraMonths === '' ? '' : String(extraMonths)}
-                onChange={(e) => applyNumericField(setExtraMonths, e.target.value, 'int')}
-              />
-            </label>
-          </div>
-
-          <button
-            type="button"
-            className="cic-advanced-toggle"
-            onClick={() => setAdvancedOpen((o) => !o)}
-            aria-expanded={advancedOpen}
-          >
-            Advanced options {advancedOpen ? '▾' : '▸'}
-          </button>
-
-          {advancedOpen && (
-            <div className="cic-advanced">
-              <label className="cic-field">
-                <span className="cic-field__label">
-                  Compounding frequency
-                  <HelpTip text="How often interest is added to your balance." />
-                </span>
-                <select
-                  value={compounding}
-                  onChange={(e) => setCompounding(e.target.value as CompoundingFrequency)}
-                >
-                  <option value="daily">Daily</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="yearly">Yearly</option>
-                </select>
-              </label>
-              <label className="cic-field">
-                <span className="cic-field__label">
-                  Monthly contribution
-                  <HelpTip text="Money you add each month after the first month. In ISA mode, we respect the £20,000 per tax year subscription cap." />
-                </span>
-                <div className="cic-field__row">
-                  {sym ? <span className="cic-prefix">{sym}</span> : <span className="cic-prefix cic-prefix--muted">—</span>}
+              <div
+                className="cic-mock-row__value"
+                role="group"
+                aria-labelledby="cic-lbl-mock-p"
+              >
+                <div className="cic-mock-row__val-main">
                   <input
+                    id="cic-principal"
+                    className="cic-mock-ghost-in"
                     type="text"
                     inputMode="decimal"
                     autoComplete="off"
                     placeholder="0"
-                    value={monthlyContribution === '' ? '' : String(monthlyContribution)}
-                    onChange={(e) => applyNumericField(setMonthlyContribution, e.target.value)}
+                    value={principal === '' ? '' : String(principal)}
+                    onChange={(e) => applyNumericField(setPrincipal, e.target.value)}
                   />
                 </div>
-              </label>
-              <label className="cic-check">
-                <input
-                  type="checkbox"
-                  checked={withdrawalsEnabled}
-                  onChange={(e) => setWithdrawalsEnabled(e.target.checked)}
-                />
-                Withdrawals
-                <HelpTip text="If ticked, you take the same amount out every month (after deposits that month)." />
-              </label>
-              {withdrawalsEnabled && (
-                <label className="cic-field">
-                  <span className="cic-field__label">
-                    Monthly withdrawal
-                    <HelpTip text="How much you withdraw each month." />
-                  </span>
-                  <div className="cic-field__row">
-                    {sym ? <span className="cic-prefix">{sym}</span> : <span className="cic-prefix cic-prefix--muted">—</span>}
+                <span className="cic-mock-chevbar" aria-hidden />
+                <div className="cic-mock-chevcell">
+                  <label htmlFor="cic-currency-main" className="cic-ref-visually-hidden">
+                    Currency
+                  </label>
+                  <select
+                    id="cic-currency-main"
+                    className="cic-mock-sel--row"
+                    value={currency}
+                    onChange={(e) => setCurrency((e.target.value || '') as CurrencyCode | '')}
+                    aria-label="Currency"
+                  >
+                    <option value="">Set</option>
+                    {CURRENCY_OPTIONS.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.code}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="cic-mock-row">
+              <span className="cic-mock-row__label" id="cic-lbl-mock-r">
+                Annual Interest Rate
+              </span>
+              <div className="cic-mock-row__value" role="group" aria-labelledby="cic-lbl-mock-r">
+                <div className="cic-mock-row__val-main">
+                  <div className="cic-mock-rate__left">
                     <input
+                      id="cic-annual-rate"
+                      className="cic-mock-ghost-in"
                       type="text"
                       inputMode="decimal"
                       autoComplete="off"
                       placeholder="0"
-                      value={monthlyWithdrawal === '' ? '' : String(monthlyWithdrawal)}
-                      onChange={(e) => applyNumericField(setMonthlyWithdrawal, e.target.value)}
+                      value={annualRate === '' ? '' : String(annualRate)}
+                      onChange={(e) => applyNumericField(setAnnualRate, e.target.value)}
+                      aria-label="Interest rate percent"
+                    />
+                    <span className="cic-mock-ghost-suffix">%</span>
+                  </div>
+                </div>
+                <span className="cic-mock-chevbar" aria-hidden />
+                <div className="cic-mock-chevcell">
+                  <label htmlFor="cic-rate-period" className="cic-ref-visually-hidden">
+                    Rate applies per
+                  </label>
+                  <select
+                    id="cic-rate-period"
+                    className="cic-mock-sel--row"
+                    value={ratePeriod}
+                    onChange={(e) => setRatePeriod(e.target.value as InterestRatePeriod)}
+                    aria-label="How often the rate applies"
+                  >
+                    {INTEREST_RATE_PERIOD_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="cic-mock-row">
+              <span className="cic-mock-row__label" id="cic-lbl-mock-t">
+                Time Period
+              </span>
+              <div
+                className="cic-mock-row__value"
+                role="group"
+                aria-labelledby="cic-lbl-mock-t"
+              >
+                <div className="cic-mock-row__val-main cic-mock-row__val-main--time">
+                <div className="cic-mock-time-pair">
+                  <div className="cic-mock-time-pair__cell">
+                    <input
+                      className="cic-mock-ghost-in"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="0"
+                      value={years === '' ? '' : String(years)}
+                      onChange={(e) => applyNumericField(setYears, e.target.value, 'int')}
+                      aria-label="Years"
+                    />
+                    <span className="cic-mock-time-pair__unit">Years</span>
+                  </div>
+                  <span className="cic-mock-time-pair__v" aria-hidden />
+                  <div className="cic-mock-time-pair__cell">
+                    <input
+                      className="cic-mock-ghost-in"
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="0"
+                      value={extraMonths === '' ? '' : String(extraMonths)}
+                      onChange={(e) => applyNumericField(setExtraMonths, e.target.value, 'int')}
+                      aria-label="Months"
+                    />
+                    <span className="cic-mock-time-pair__unit">Months</span>
+                  </div>
+                </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="cic-mock-adv">
+            <button
+              type="button"
+              className="cic-mock-adv__toggle"
+              onClick={() => setAdvancedOpen((o) => !o)}
+              aria-expanded={advancedOpen}
+            >
+              <span className="cic-mock-ico-chev" aria-hidden />
+              <span className="cic-mock-adv__title">Advanced Options</span>
+              <span
+                className={
+                  advancedOpen
+                    ? 'cic-mock-ico-chev cic-mock-ico-chev--right'
+                    : 'cic-mock-ico-chev cic-mock-ico-chev--right cic-mock-ico-chev--collapsed'
+                }
+                aria-hidden
+              />
+            </button>
+
+            {advancedOpen && (
+              <div className="cic-mock-adv__body">
+                <div className="cic-mock-adv__line">
+                  <div className="cic-mock-adv__label">Compounding Frequency</div>
+                  <div className="cic-mock-adv__field">
+                    <label htmlFor="cic-compound" className="cic-ref-visually-hidden">
+                      Compounding frequency
+                    </label>
+                    <select
+                      id="cic-compound"
+                      className="cic-mock-sel"
+                      value={compounding}
+                      onChange={(e) => setCompounding(e.target.value as CompoundingFrequency)}
+                    >
+                      {COMPOUNDING_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.labelShort}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="cic-mock-adv__line">
+                  <div className="cic-mock-adv__label">
+                    Monthly Contribution
+                    <HelpTip
+                      icon="info"
+                      text="Money you add each month. In ISA mode we cap subscriptions at £20,000 per tax year."
                     />
                   </div>
-                </label>
-              )}
-              <label className="cic-check">
-                <input
-                  type="checkbox"
-                  checked={excludeWeekends}
-                  onChange={(e) => setExcludeWeekends(e.target.checked)}
-                />
-                Exclude weekends (daily compounding only)
-                <HelpTip text="If ticked, no interest is counted on Saturday or Sunday (only applies when compounding is daily)." />
-              </label>
-            </div>
-          )}
+                  <div className="cic-mock-adv__field">
+                    <input
+                      id="cic-monthly-contrib"
+                      className="cic-mock-txt"
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      placeholder="0"
+                      value={monthlyContribution === '' ? '' : String(monthlyContribution)}
+                      onChange={(e) => applyNumericField(setMonthlyContribution, e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="cic-mock-adv__checkline">
+                  <label className="cic-check">
+                    <input
+                      type="checkbox"
+                      checked={withdrawalsEnabled}
+                      onChange={(e) => setWithdrawalsEnabled(e.target.checked)}
+                    />
+                    Withdrawals
+                  </label>
+                </div>
+
+                {withdrawalsEnabled && (
+                  <div className="cic-mock-adv__line">
+                    <div className="cic-mock-adv__label">Monthly withdrawal</div>
+                    <div className="cic-mock-adv__field">
+                      <input
+                        id="cic-monthly-withdraw"
+                        className="cic-mock-txt"
+                        type="text"
+                        inputMode="decimal"
+                        autoComplete="off"
+                        placeholder="0"
+                        value={monthlyWithdrawal === '' ? '' : String(monthlyWithdrawal)}
+                        onChange={(e) => applyNumericField(setMonthlyWithdrawal, e.target.value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {compounding === 'daily365' && (
+                  <div className="cic-mock-adv__checkline">
+                    <label className="cic-check">
+                      <input
+                        type="checkbox"
+                        checked={excludeWeekends}
+                        onChange={(e) => setExcludeWeekends(e.target.checked)}
+                      />
+                      Exclude Weekends
+                      <HelpTip
+                        icon="info"
+                        text="If selected, no interest is applied on Saturday or Sunday (daily 365/yr compounding only)."
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           {formError && <p className="cic-form-error" role="alert">{formError}</p>}
 
           <button type="submit" className="cic-btn-calc">
-            View results
+            Calculate
           </button>
           <p className="cic-reset-hint">
             <button
@@ -339,6 +430,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
                 setCurrency(d.currency)
                 setPrincipal(d.principal)
                 setAnnualRate(d.annualRate)
+                setRatePeriod(d.ratePeriod)
                 setYears(d.years)
                 setExtraMonths(d.extraMonths)
                 setCompounding(d.compounding)

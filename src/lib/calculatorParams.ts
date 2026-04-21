@@ -1,4 +1,6 @@
 import type { CompoundingFrequency } from '@/lib/compoundInterest'
+import type { InterestRatePeriod } from '@/lib/compoundModes'
+import { nominalAnnualPercentFromInput } from '@/lib/compoundModes'
 import type { CurrencyCode } from '@/lib/currency'
 import { isCurrencyCode } from '@/lib/currency'
 
@@ -8,6 +10,8 @@ export type CalculatorFormState = {
   currency: CurrencyCode | ''
   principal: NumericField
   annualRate: NumericField
+  /** How the interest rate number should be read (daily / weekly / … / annual). */
+  ratePeriod: InterestRatePeriod
   years: NumericField
   extraMonths: NumericField
   compounding: CompoundingFrequency
@@ -18,15 +22,50 @@ export type CalculatorFormState = {
 }
 
 const C_OUT: Record<CompoundingFrequency, string> = {
-  daily: 'd',
-  monthly: 'm',
-  yearly: 'y',
+  daily365: 'd365',
+  daily360: 'd360',
+  semiweekly104: 'sw104',
+  weekly52: 'w52',
+  biweekly26: 'bw26',
+  semimonthly24: 'sm24',
+  monthly12: 'm12',
+  bimonthly6: 'bm6',
+  quarterly4: 'q4',
+  halfyearly2: 'h2',
+  yearly1: 'y1',
 }
 
 const C_IN: Record<string, CompoundingFrequency> = {
+  d365: 'daily365',
+  d360: 'daily360',
+  sw104: 'semiweekly104',
+  w52: 'weekly52',
+  bw26: 'biweekly26',
+  sm24: 'semimonthly24',
+  m12: 'monthly12',
+  bm6: 'bimonthly6',
+  q4: 'quarterly4',
+  h2: 'halfyearly2',
+  y1: 'yearly1',
+  d: 'daily365',
+  m: 'monthly12',
+  y: 'yearly1',
+}
+
+const RP_OUT: Record<InterestRatePeriod, string> = {
+  daily: 'd',
+  weekly: 'w',
+  monthly: 'm',
+  quarterly: 'q',
+  annual: 'a',
+}
+
+const RP_IN: Record<string, InterestRatePeriod> = {
   d: 'daily',
+  w: 'weekly',
   m: 'monthly',
-  y: 'yearly',
+  q: 'quarterly',
+  a: 'annual',
 }
 
 function clamp(n: number, min: number, max: number) {
@@ -42,7 +81,7 @@ function parseOptNum(raw: string | null): NumericField {
 /** Map form fields to numbers for simulation (`''` becomes `0`). */
 export function formValuesForSimulation(s: CalculatorFormState): {
   initialPrincipal: number
-  annualRatePercent: number
+  nominalAnnualPercent: number
   years: number
   extraMonths: number
   compoundingFrequency: CompoundingFrequency
@@ -52,9 +91,10 @@ export function formValuesForSimulation(s: CalculatorFormState): {
   excludeWeekends: boolean
 } {
   const n = (v: NumericField) => (v === '' ? 0 : v)
+  const rate = n(s.annualRate)
   return {
     initialPrincipal: n(s.principal),
-    annualRatePercent: n(s.annualRate),
+    nominalAnnualPercent: nominalAnnualPercentFromInput(rate, s.ratePeriod),
     years: n(s.years),
     extraMonths: n(s.extraMonths),
     compoundingFrequency: s.compounding,
@@ -70,6 +110,7 @@ export function encodeCalculatorParams(s: CalculatorFormState): string {
   if (s.currency) qs.set('cur', s.currency)
   if (s.principal !== '') qs.set('p', String(s.principal))
   if (s.annualRate !== '') qs.set('r', String(s.annualRate))
+  if (s.ratePeriod !== 'annual') qs.set('rp', RP_OUT[s.ratePeriod])
   if (s.years !== '') qs.set('y', String(s.years))
   if (s.extraMonths !== '') qs.set('em', String(s.extraMonths))
   qs.set('c', C_OUT[s.compounding])
@@ -94,8 +135,12 @@ export function decodeCalculatorParams(searchParams: URLSearchParams): Calculato
   const years = yearsRaw === '' ? '' : clamp(yearsRaw as number, 0, 200)
   const extraMonths = emRaw === '' ? '' : clamp(emRaw as number, 0, 11)
 
-  const cRaw = searchParams.get('c') ?? 'd'
-  const compounding = C_IN[cRaw] ?? 'daily'
+  const rpRaw = searchParams.get('rp')
+  const ratePeriod: InterestRatePeriod =
+    rpRaw && rpRaw in RP_IN ? RP_IN[rpRaw] : 'annual'
+
+  const cRaw = searchParams.get('c') ?? 'd365'
+  const compounding = C_IN[cRaw] ?? 'daily365'
 
   const mcRaw = searchParams.get('mc')
   const monthlyContribution =
@@ -110,6 +155,7 @@ export function decodeCalculatorParams(searchParams: URLSearchParams): Calculato
     currency,
     principal,
     annualRate,
+    ratePeriod,
     years,
     extraMonths,
     compounding,
@@ -125,9 +171,10 @@ export function getDefaultCalculatorForm(): CalculatorFormState {
     currency: '',
     principal: '',
     annualRate: '',
+    ratePeriod: 'annual',
     years: '',
     extraMonths: '',
-    compounding: 'daily',
+    compounding: 'daily365',
     monthlyContribution: '',
     withdrawalsEnabled: false,
     monthlyWithdrawal: '',
