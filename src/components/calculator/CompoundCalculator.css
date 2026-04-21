@@ -22,6 +22,13 @@
   --cic-success-bg: #dcfce7;
   --cic-success-text: #166534;
   --cic-table-head: #dbeafe;
+  /* Stacked chart: Principal (bottom)  Interest (top) — match reference */
+  --cic-chart-principal-stroke: #d97706;
+  --cic-chart-principal-fill: #fef9c3;
+  --cic-chart-contrib-stroke: #1d4ed8;
+  --cic-chart-contrib-fill: #3b82f6;
+  --cic-chart-interest-stroke: #16a34a;
+  --cic-chart-interest-fill: #4ade80;
   /* 20×20 “big” chevron — match title / control blues */
   --cic-chev-down-navy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   --cic-chev-down-blue: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231d4ed8' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
@@ -39,12 +46,14 @@
 
 /* Full results dashboard (form + chart + table) */
 .cic-page--dashboard {
-  background: transparent;
+  background: var(--cic-bg-page);
   max-width: min(100%, 72rem);
   margin: 0 auto;
   border-radius: 0;
-  padding: 1.5rem clamp(1rem, 3vw, 2rem) 3.5rem;
+  padding: 1.5rem clamp(0.75rem, 3vw, 2rem) 3.5rem;
   box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
 }
 
 .home-page--calc-flow .cic-page--dashboard {
@@ -126,19 +135,20 @@
 
 .cic-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(1rem, 2.5vw, 1.5rem);
   margin-bottom: 1.5rem;
+  align-items: start;
 }
 
 .cic-page--dashboard .cic-grid {
   width: 100%;
-  max-width: min(96vw, 72rem);
+  max-width: min(100%, 72rem);
   margin-left: auto;
   margin-right: auto;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .cic-grid {
     grid-template-columns: 1fr;
   }
@@ -149,7 +159,8 @@
   border-radius: 12px;
   box-shadow: var(--cic-card-shadow);
   border: 1px solid var(--cic-card-border);
-  padding: 1.25rem 1.5rem;
+  padding: clamp(1rem, 2.5vw, 1.25rem) clamp(0.9rem, 2.5vw, 1.5rem);
+  min-width: 0;
 }
 
 .cic-card--wide {
@@ -1272,6 +1283,13 @@
   color: #b91c1c;
 }
 
+.cic-req {
+  color: #b91c1c;
+  font-weight: 700;
+  font-size: 1em;
+  white-space: nowrap;
+}
+
 .cic-info {
   cursor: help;
   color: #94a3b8;
@@ -1382,11 +1400,12 @@
 }
 
 .cic-page--dashboard .cic-card--results {
-  padding: 1.5rem;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
   max-width: none;
   width: 100%;
   box-sizing: border-box;
   margin: 0;
+  min-width: 0;
 }
 
 .cic-page--dashboard .cic-card--results > .cic-card__title {
@@ -1423,33 +1442,37 @@
 .cic-breakdown {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.45rem;
   margin-bottom: 1rem;
-  padding: 0.6rem 0.75rem;
-  background: #ecfdf3;
-  border: 1px solid #bbf7d0;
-  border-radius: 8px;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
 .cic-breakdown__row {
-  padding: 0;
-  border-radius: 0;
-  font-size: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-size: clamp(0.85rem, 1.4vw, 0.9rem);
   font-weight: 600;
   line-height: 1.4;
-  background: transparent;
 }
 
 .cic-breakdown__row--interest {
   color: #166534;
+  background: #ecfdf3;
+  border: 1px solid #bbf7d0;
 }
 
 .cic-breakdown__row--principal {
   color: #1e3a5f;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
 }
 
 .cic-breakdown__row--contrib {
   color: #1d4ed8;
+  background: #dbeafe;
+  border: 1px solid #93c5fd;
 }
 
 .cic-stats {
@@ -1492,9 +1515,10 @@
   margin-right: auto;
   width: 100%;
   box-sizing: border-box;
-  padding: 1.25rem 1.5rem 1.5rem;
+  padding: clamp(1rem, 2.5vw, 1.25rem) clamp(0.9rem, 2.5vw, 1.5rem) 1.5rem;
   border: 1px solid #e5e7eb;
   background: #fff;
+  min-width: 0;
 }
 
 .cic-section-head {
@@ -1502,7 +1526,7 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.75rem 1rem;
   margin-bottom: 1rem;
 }
 
@@ -1512,17 +1536,23 @@
 
 .cic-toggles {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.35rem;
+  justify-content: flex-end;
+  max-width: 100%;
 }
 
 .cic-toggles button {
-  padding: 0.35rem 0.75rem;
+  padding: 0.4rem 0.75rem;
+  min-height: 2.5rem;
+  min-width: 2.75rem;
   border-radius: 8px;
   border: 1px solid #cbd5e1;
   background: #fff;
-  font-size: 0.85rem;
+  font-size: clamp(0.8rem, 1.2vw, 0.85rem);
   cursor: pointer;
   color: #475569;
+  flex: 0 0 auto;
 }
 
 .cic-toggles button.is-active {
@@ -1534,7 +1564,41 @@
 
 .cic-chart-wrap {
   width: 100%;
-  min-height: 320px;
+  min-height: 200px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.cic-chart-empty {
+  margin: 0;
+  padding: 2.5rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #64748b;
+  min-height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+@media (max-width: 640px) {
+  .cic-section-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cic-section-head .cic-toggles {
+    justify-content: flex-start;
+  }
+
+  .cic-table th,
+  .cic-table td {
+    padding: 0.45rem 0.4rem;
+    font-size: 0.8125rem;
+  }
 }
 
 .cic-table-wrap {
@@ -1817,23 +1881,115 @@
   background: transparent;
 }
 
-/* Input-only landing: normal calculator card width (~450–500px), centered */
+/* Input-only landing: full width on small screens; ~max 30rem on larger phones/tablets */
 .cic-page--input-only .cic-card--single {
   width: 100%;
-  max-width: min(100% - 2rem, 30rem);
+  max-width: min(100%, 30rem);
   margin: 0 auto 2rem;
   padding: 1.5rem;
   box-sizing: border-box;
 }
 
-/* Results dashboard: same “normal” width for the investment form column */
+/* Narrow viewports: stack label above fields, widen touch targets (home + results form) */
+@media (max-width: 640px) {
+  .cic-page--input-only {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .cic-page--input-only .cic-card--single {
+    max-width: 100%;
+    padding: 1.25rem 1rem;
+  }
+
+  .cic-form--mock {
+    overflow-x: visible;
+  }
+
+  .cic-form--mock .cic-mock-row {
+    flex-direction: column;
+    align-items: stretch;
+    align-content: stretch;
+    min-height: unset;
+    padding: 0.55rem 0.75rem 0.65rem;
+    gap: 0.45rem;
+  }
+
+  .cic-form--mock .cic-mock-row__label {
+    max-width: 100%;
+    width: 100%;
+    white-space: normal;
+    align-self: flex-start;
+    padding: 0 0 0.1rem;
+    font-size: 0.8125rem;
+  }
+
+  .cic-form--mock .cic-mock-row__value {
+    width: 100%;
+    justify-content: stretch;
+    flex: 1 1 auto;
+  }
+
+  .cic-form--mock .cic-mock-row__val-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    justify-content: flex-start;
+    padding-left: 0;
+  }
+
+  .cic-form--mock .cic-mock-ghost-in {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .cic-form--mock .cic-mock-chevcell {
+    min-width: 6.5rem;
+    max-width: none;
+    flex: 0 0 auto;
+  }
+
+  .cic-form--mock .cic-mock-time-pair {
+    width: 100%;
+    margin: 0;
+    min-height: 2.75rem;
+  }
+
+  .cic-form--mock .cic-mock-time-pair__cell {
+    flex: 1 1 0;
+    justify-content: flex-start;
+    padding: 0.45rem 0.5rem 0.45rem 0.55rem;
+  }
+
+  .cic-form--mock .cic-mock-time-pair__cell .cic-mock-ghost-in {
+    flex: 1 1 auto;
+    min-width: 1.5rem;
+    text-align: left;
+    font-size: 1rem;
+  }
+
+  .cic-form--mock .cic-mock-sel--row {
+    font-size: 0.85rem;
+  }
+}
+
+/* Results dashboard: form fills left column on wide layouts; narrow when stacked */
 .cic-page--dashboard .cic-card--inputs {
-  max-width: min(100%, 30rem);
+  max-width: 100%;
   width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 1.5rem;
+  margin-left: 0;
+  margin-right: 0;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
   box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .cic-page--dashboard .cic-card--inputs {
+    max-width: min(100%, 30rem);
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 .cic-muted {

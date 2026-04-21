@@ -76,6 +76,19 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
   const [tableGranularity, setTableGranularity] = useState<TableGranularity>('monthly')
 
   const [hydrated, setHydrated] = useState(false)
+  const [chartHeight, setChartHeight] = useState(320)
+  useEffect(() => {
+    const setH = () => {
+      if (typeof window === 'undefined') return
+      const w = window.innerWidth
+      if (w < 480) setChartHeight(220)
+      else if (w < 768) setChartHeight(260)
+      else setChartHeight(320)
+    }
+    setH()
+    window.addEventListener('resize', setH)
+    return () => window.removeEventListener('resize', setH)
+  }, [])
 
   useLayoutEffect(() => {
     const d = decodeCalculatorParams(searchParams)
@@ -176,6 +189,9 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
       }))
     }
     if (chartGranularity === 'yearly') {
+      if (pts.length === 0) return []
+      // One point per year bucket (end of year); avoid duplicate indices from y <= ceil (bug: broke Recharts)
+      const yearCount = Math.max(1, Math.ceil(pts.length / 12))
       const out: {
         name: string
         label: string
@@ -184,13 +200,12 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
         interest: number
         balance: number
       }[] = []
-      for (let y = 0; y <= Math.ceil(pts.length / 12); y++) {
-        const idx = Math.min(y * 12, pts.length - 1)
-        if (idx < 0) break
-        const p = pts[idx]
+      for (let y = 0; y < yearCount; y++) {
+        const idx = Math.min((y + 1) * 12 - 1, pts.length - 1)
+        const p = pts[idx]!
         out.push({
-          name: `Y${y}`,
-          label: `Year ${y}`,
+          name: `Y${y + 1}`,
+          label: `Year ${y + 1}`,
           principal: params.initialPrincipal,
           contributions: p.cumulativeContributions,
           interest: Math.max(0, p.balance - params.initialPrincipal - p.cumulativeContributions),
@@ -207,7 +222,7 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
       interest: Math.max(0, p.balance - params.initialPrincipal - p.cumulativeContributions),
       balance: p.balance,
     }))
-  }, [result.monthlyPoints, chartGranularity, params.initialPrincipal])
+  }, [result.monthlyPoints, chartGranularity, params])
 
   const tableData = useMemo(() => {
     if (tableGranularity === 'monthly') return result.tableRows
@@ -222,9 +237,15 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
 
   const q = encodeCalculatorParams(formState)
 
-  function onCalculate(e: React.FormEvent) {
-    e.preventDefault()
-    replaceUrl()
+  function onCalcFieldsKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
+    const t = e.target
+    if (t instanceof HTMLSelectElement) return
+    if (t instanceof HTMLInputElement && t.type === 'checkbox') return
+    if (t instanceof HTMLInputElement) {
+      e.preventDefault()
+      replaceUrl()
+    }
   }
 
   const pageTitle = isaMode ? 'ISA Compound Interest Calculator' : 'Daily Compound Interest Calculator'
@@ -271,11 +292,20 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
             <h2 className="cic-card__title cic-card__title--with-isa cic-card__title--details">Investment Details</h2>
           </div>
           <hr className="cic-card__hr" aria-hidden />
-          <form onSubmit={onCalculate} className="cic-form cic-form--mock">
+          <div
+            className="cic-form cic-form--mock"
+            role="group"
+            aria-label="Calculator inputs"
+            onKeyDown={onCalcFieldsKeyDown}
+          >
             <div className="cic-mock-primary">
               <div className="cic-mock-row">
                 <span className="cic-mock-row__label" id="cic-db-lbl-mock-p">
                   Initial Investment
+                  <span className="cic-req" aria-hidden="true">
+                    {' '}
+                    *
+                  </span>
                 </span>
                 <div className="cic-mock-row__value" role="group" aria-labelledby="cic-db-lbl-mock-p">
                   <div className="cic-mock-row__val-main">
@@ -288,6 +318,7 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
                       placeholder="0"
                       value={principal === '' ? '' : String(principal)}
                       onChange={(e) => applyNumericField(setPrincipal, e.target.value)}
+                      aria-required
                     />
                   </div>
                   <span className="cic-mock-chevbar" aria-hidden />
@@ -300,7 +331,8 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
                       className="cic-mock-sel--row"
                       value={currency}
                       onChange={(e) => setCurrency((e.target.value || '') as CurrencyCode | '')}
-                      aria-label="Currency"
+                      aria-label="Currency (required)"
+                      aria-required
                     >
                       <option value="">Set</option>
                       {CURRENCY_OPTIONS.map((c) => (
@@ -316,6 +348,10 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
               <div className="cic-mock-row">
                 <span className="cic-mock-row__label" id="cic-db-lbl-mock-r">
                   Annual Interest Rate
+                  <span className="cic-req" aria-hidden="true">
+                    {' '}
+                    *
+                  </span>
                 </span>
                 <div className="cic-mock-row__value" role="group" aria-labelledby="cic-db-lbl-mock-r">
                   <div className="cic-mock-row__val-main">
@@ -330,6 +366,7 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
                         value={annualRate === '' ? '' : String(annualRate)}
                         onChange={(e) => applyNumericField(setAnnualRate, e.target.value)}
                         aria-label="Interest rate percent"
+                        aria-required
                       />
                       <span className="cic-mock-ghost-suffix">%</span>
                     </div>
@@ -509,7 +546,7 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
               )}
             </div>
 
-            <button type="submit" className="cic-btn-calc">
+            <button type="button" className="cic-btn-calc" onClick={replaceUrl}>
               Calculate
             </button>
             <p className="cic-reset-hint">
@@ -535,7 +572,7 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
                 Clear form
               </button>
             </p>
-          </form>
+          </div>
         </section>
 
         <section className="cic-card cic-card--results" id="results">
@@ -601,54 +638,72 @@ export default function CompoundCalculatorDashboard({ isaMode }: Props) {
           </div>
         </div>
         <div className="cic-chart-wrap">
-          <ResponsiveContainer width="100%" height={320}>
-            <AreaChart data={chartData} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="label" tick={{ fontSize: 11 }} />
-              <YAxis
-                tickFormatter={(v) => formatCurrencyAxisCompact(v, displayCurrency)}
-                tick={{ fontSize: 11 }}
-              />
-              <Tooltip
-                formatter={(value: number) => formatMoney(value)}
-                labelFormatter={(_, p) => (p?.[0]?.payload?.label as string) ?? ''}
-                contentStyle={{
-                  background: '#1e293b',
-                  border: 'none',
-                  borderRadius: 8,
-                  color: '#f8fafc',
-                  fontSize: '0.85rem',
-                }}
-                itemStyle={{ color: '#e2e8f0' }}
-                labelStyle={{ color: '#cbd5e1', fontWeight: 600 }}
-              />
-              <Legend verticalAlign="bottom" height={40} />
-              <Area
-                type="monotone"
-                dataKey="principal"
-                name="Principal"
-                stackId="1"
-                stroke="#f59e0b"
-                fill="#fde68a"
-              />
-              <Area
-                type="monotone"
-                dataKey="contributions"
-                name="Contributions"
-                stackId="1"
-                stroke="#2563eb"
-                fill="#60a5fa"
-              />
-              <Area
-                type="monotone"
-                dataKey="interest"
-                name="Interest"
-                stackId="1"
-                stroke="#16a34a"
-                fill="#4ade80"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          {chartData.length === 0 ? (
+            <p className="cic-chart-empty" role="status">
+              Add a time period (years and/or months) to see the chart.
+            </p>
+          ) : (
+            <ResponsiveContainer width="100%" height={chartHeight}>
+              <AreaChart
+                data={chartData}
+                margin={{ top: 10, right: 8, left: 4, bottom: 4 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 10 }}
+                  interval="preserveStartEnd"
+                  minTickGap={6}
+                  angle={chartHeight < 280 ? -30 : 0}
+                  textAnchor={chartHeight < 280 ? 'end' : 'middle'}
+                  height={chartHeight < 280 ? 64 : 36}
+                />
+                <YAxis
+                  width={56}
+                  tickFormatter={(v) => formatCurrencyAxisCompact(v, displayCurrency)}
+                  tick={{ fontSize: 10 }}
+                />
+                <Tooltip
+                  formatter={(value: number) => formatMoney(value)}
+                  labelFormatter={(_, p) => (p?.[0]?.payload?.label as string) ?? ''}
+                  contentStyle={{
+                    background: '#1e293b',
+                    border: 'none',
+                    borderRadius: 8,
+                    color: '#f8fafc',
+                    fontSize: '0.85rem',
+                  }}
+                  itemStyle={{ color: '#e2e8f0' }}
+                  labelStyle={{ color: '#cbd5e1', fontWeight: 600 }}
+                />
+                <Legend verticalAlign="bottom" height={40} />
+                <Area
+                  type="monotone"
+                  dataKey="principal"
+                  name="Principal"
+                  stackId="1"
+                  stroke="#d97706"
+                  fill="#fef9c3"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="contributions"
+                  name="Contributions"
+                  stackId="1"
+                  stroke="#1d4ed8"
+                  fill="#3b82f6"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="interest"
+                  name="Interest"
+                  stackId="1"
+                  stroke="#16a34a"
+                  fill="#4ade80"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          )}
         </div>
       </section>
 

@@ -33,6 +33,17 @@ footer.footer.footer--dark .footer-col {
   min-width: 0;
 }
 
+footer.footer.footer--dark .footer-col-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  width: 100%;
+}
+
 footer.footer.footer--dark .footer-col-title {
   font-size: 0.75rem;
   font-weight: 700;
@@ -42,14 +53,21 @@ footer.footer.footer--dark .footer-col-title {
   margin: 0 0 0.25rem;
 }
 
-footer.footer.footer--dark .footer-col a {
+footer.footer.footer--dark .footer-col a,
+footer.footer.footer--dark .footer-col-list a {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
   font-size: 0.9rem;
   font-weight: 400;
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
+  line-height: 1.4;
+  padding: 0.1rem 0;
 }
 
-footer.footer.footer--dark .footer-col a:hover {
+footer.footer.footer--dark .footer-col a:hover,
+footer.footer.footer--dark .footer-col-list a:hover {
   color: #fff;
   text-decoration: underline;
 }
@@ -217,7 +235,7 @@ footer.footer.footer--dark .footer-copy a:hover {
 
 @media (max-width: 600px) {
   footer.footer.footer--dark .footer-columns {
-    flex-direction: column;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
   }
 

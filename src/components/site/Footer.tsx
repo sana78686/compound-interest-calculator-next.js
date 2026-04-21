@@ -42,28 +42,42 @@ export default function Footer({
           <div className="footer-columns">
             <div className="footer-col">
               <h3 className="footer-col-title">{t('footerCompany')}</h3>
-              <Link href="/blog">{t('footerBlog')}</Link>
-              <Link href="/contact">{t('footerContact')}</Link>
-              <Link href="/isa">ISA calculator</Link>
+              <ul className="footer-col-list">
+                <li>
+                  <Link href="/blog">{t('footerBlog')}</Link>
+                </li>
+                <li>
+                  <Link href="/contact">{t('footerContact')}</Link>
+                </li>
+                <li>
+                  <Link href="/isa">ISA calculator</Link>
+                </li>
+              </ul>
             </div>
             {cmsFooterLinks.length > 0 && (
               <div className="footer-col">
                 <h3 className="footer-col-title">{t('footerOther')}</h3>
-                {cmsFooterLinks.map((p) => (
-                  <Link key={p.id} href={`/page/${p.slug}`}>
-                    {ucWords(p.title)}
-                  </Link>
-                ))}
+                <ul className="footer-col-list">
+                  {cmsFooterLinks.map((p) => (
+                    <li key={p.id}>
+                      <Link href={`/page/${p.slug}`}>{ucWords(p.title)}</Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
             {showLegalColumn && (
               <div className="footer-col">
                 <h3 className="footer-col-title">{t('footerLegal')}</h3>
-                {legalLinksToShow.map((slug) => (
-                  <Link key={slug} href={`/legal/${slug}`}>
-                    {t(LEGAL_LABEL_KEY[slug as keyof typeof LEGAL_LABEL_KEY])}
-                  </Link>
-                ))}
+                <ul className="footer-col-list">
+                  {legalLinksToShow.map((slug) => (
+                    <li key={slug}>
+                      <Link href={`/legal/${slug}`}>
+                        {t(LEGAL_LABEL_KEY[slug as keyof typeof LEGAL_LABEL_KEY])}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
           </div>

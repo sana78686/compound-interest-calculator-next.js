@@ -78,6 +78,11 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
     if (compounding !== 'daily365' && excludeWeekends) setExcludeWeekends(false)
   }, [compounding, excludeWeekends])
 
+  useEffect(() => {
+    if (!formError) return
+    document.getElementById('cic-form-error')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+  }, [formError])
+
   const formState: CalculatorFormState = useMemo(
     () => ({
       currency,
@@ -117,16 +122,29 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
     }
   }
 
-  function onCalculate(e: React.FormEvent) {
-    e.preventDefault()
-    setFormError('')
+  function goToResults() {
     if (!canRunSimulation(formState)) {
       setFormError('Choose a currency, enter initial investment and interest rate.')
       return
     }
+    setFormError('')
     const q = encodeCalculatorParams(formState)
     const path = isaMode ? '/isa/results' : '/results'
-    router.push(`${path}?${q}`)
+    // Use full navigation so the results page always loads; avoids next/router no-op edge cases
+    if (typeof window !== 'undefined') {
+      window.location.assign(`${path}?${q}`)
+    }
+  }
+
+  function onCalcFieldsKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
+    if (e.key !== 'Enter' || e.nativeEvent.isComposing) return
+    const t = e.target
+    if (t instanceof HTMLSelectElement) return
+    if (t instanceof HTMLInputElement && t.type === 'checkbox') return
+    if (t instanceof HTMLInputElement) {
+      e.preventDefault()
+      goToResults()
+    }
   }
 
   return (
@@ -170,11 +188,20 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
           </div>
         </div>
         <hr className="cic-card__hr" aria-hidden />
-        <form onSubmit={onCalculate} className="cic-form cic-form--mock" noValidate>
+        <div
+          className="cic-form cic-form--mock"
+          role="group"
+          aria-label="Calculator inputs"
+          onKeyDown={onCalcFieldsKeyDown}
+        >
           <div className="cic-mock-primary">
             <div className="cic-mock-row">
               <span className="cic-mock-row__label" id="cic-lbl-mock-p">
                 Initial Investment
+                <span className="cic-req" aria-hidden="true">
+                  {' '}
+                  *
+                </span>
               </span>
               <div
                 className="cic-mock-row__value"
@@ -191,6 +218,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
                     placeholder="0"
                     value={principal === '' ? '' : String(principal)}
                     onChange={(e) => applyNumericField(setPrincipal, e.target.value)}
+                    aria-required
                   />
                 </div>
                 <span className="cic-mock-chevbar" aria-hidden />
@@ -203,7 +231,8 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
                     className="cic-mock-sel--row"
                     value={currency}
                     onChange={(e) => setCurrency((e.target.value || '') as CurrencyCode | '')}
-                    aria-label="Currency"
+                    aria-label="Currency (required)"
+                    aria-required
                   >
                     <option value="">Set</option>
                     {CURRENCY_OPTIONS.map((c) => (
@@ -219,6 +248,10 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
             <div className="cic-mock-row">
               <span className="cic-mock-row__label" id="cic-lbl-mock-r">
                 Annual Interest Rate
+                <span className="cic-req" aria-hidden="true">
+                  {' '}
+                  *
+                </span>
               </span>
               <div className="cic-mock-row__value" role="group" aria-labelledby="cic-lbl-mock-r">
                 <div className="cic-mock-row__val-main">
@@ -233,6 +266,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
                       value={annualRate === '' ? '' : String(annualRate)}
                       onChange={(e) => applyNumericField(setAnnualRate, e.target.value)}
                       aria-label="Interest rate percent"
+                      aria-required
                     />
                     <span className="cic-mock-ghost-suffix">%</span>
                   </div>
@@ -416,9 +450,13 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
             )}
           </div>
 
-          {formError && <p className="cic-form-error" role="alert">{formError}</p>}
+          {formError && (
+            <p id="cic-form-error" className="cic-form-error" role="alert">
+              {formError}
+            </p>
+          )}
 
-          <button type="submit" className="cic-btn-calc">
+          <button type="button" className="cic-btn-calc" onClick={goToResults}>
             Calculate
           </button>
           <p className="cic-reset-hint">
@@ -445,7 +483,7 @@ export default function CompoundCalculatorInput({ defaultIsaMode }: Props) {
               Clear form
             </button>
           </p>
-        </form>
+        </div>
       </section>
     </div>
   )
